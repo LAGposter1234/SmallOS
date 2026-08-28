@@ -11,6 +11,9 @@ handle_command:
     cmpstr cmd_ver
     je .ver
 
+    cmpstr cmd_basic
+    je .basic
+
     cmpstr empty
     je .empty_input
 
@@ -37,6 +40,9 @@ handle_command:
     mov si, kernel_version
     int 22h
     int 21h
+
+.basic:
+    jmp 2000h:0000h
 
 .empty_input:
     int 21h

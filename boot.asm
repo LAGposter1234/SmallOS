@@ -6,6 +6,7 @@ start:
     xor ax, ax
     mov ds, ax
     mov [boot_drive], dl
+    mov [0x8000], dl
 
     mov ah, 00h
     mov al, 03h

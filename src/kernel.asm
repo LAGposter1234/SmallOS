@@ -1,6 +1,5 @@
 bits 16
 org 0
-cpu 8086
 
 kernel_start:
     cli
@@ -9,6 +8,16 @@ kernel_start:
     mov ds, ax
     mov ss, ax
     mov sp, 0FFFFh
+
+    ; get boot drive
+
+    push ds
+    xor ax, ax
+    mov ds, ax
+    mov dl, [8000h]
+    pop ds
+
+    ; dont modify dl after this
 
     ; register interrupts
 
@@ -36,6 +45,20 @@ kernel_start:
     mov bx, 1000h
     mov cx, itoh_handler
     call register_interrupt
+
+    mov ax, 26h
+    mov bx, 1000h
+    mov cx, read_sectors
+    call register_interrupt
+
+    ; load basic
+
+    mov ax, 2000h
+    mov es, ax
+    mov ax, 17
+    mov bx, 0
+    mov cx, 16
+    call read_sectors
 
     .os:
 
@@ -68,6 +91,10 @@ get_line_handler:
     call get_line
     iret
 
+read_sectors_handler:
+    call read_sectors
+    iret
+
 htoi_handler:
     call htoi
     iret
@@ -78,6 +105,7 @@ itoh_handler:
 %include "keyboard.asm"
 %include "interrupt.asm"
 %include "command.asm"
+%include "disk.asm"
 
 ; arg1 - si (this routine is copied from boot.asm)
 print_msg:
@@ -188,5 +216,7 @@ cmd_help:
     db "help", 0
 cmd_ver:
     db "version", 0
+cmd_basic:
+    db "basic", 0
 
 times (16*512)-($-$$) db 0

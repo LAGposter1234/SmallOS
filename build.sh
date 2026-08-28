@@ -1,6 +1,9 @@
 #!/bin/bash
 
-nasm -f bin boot.asm -o boot.bin
-nasm -f bin kernel.asm -o kernel.bin
+mkdir -p build/
 
-cat boot.bin kernel.bin > smallos.img
+nasm -f bin boot.asm -o boot.bin
+nasm -f bin src/kernel.asm -I src/ -o kernel.bin
+nasm -f bin basic/main.asm -I basic/ -o basic.bin
+
+cat boot.bin kernel.bin basic.bin > smallos.img

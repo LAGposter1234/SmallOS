@@ -23,6 +23,42 @@ read_sector:
     ret
 
 ; AX = sector
+; DS:SI = 512-byte source buffer
+; CF = error
+
+; AX = sector
+; DS:SI = 512-byte source buffer
+; CF = error
+
+write_sector:
+    push ax
+    push bx
+    push cx
+    push dx
+    push es
+    push si
+
+    mov bx, si
+    mov dx, ds
+    mov es, dx
+
+    mov [dap_lba], ax
+    mov [dap_buffer], bx
+    mov [dap_segment], es
+
+    mov si, dap
+    mov ah, 43h
+    int 13h
+
+    pop si
+    pop es
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+    ret
+
+; AX = sector
 ; ES:BX = destination
 ; CX = count
 ; CF = error
@@ -33,13 +69,18 @@ read_sectors:
 
 .loop:
     call read_sector
+    jc .error
 
     inc ax
     add bx, 512
-
     loop .loop
 
 .done:
+    clc
+    ret
+
+.error:
+    stc
     ret
 
 dap:

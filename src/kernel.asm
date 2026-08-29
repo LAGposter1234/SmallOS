@@ -106,6 +106,7 @@ itoh_handler:
 %include "interrupt.asm"
 %include "command.asm"
 %include "disk.asm"
+%include "filesys.asm"
 
 ; arg1 - si (this routine is copied from boot.asm)
 print_msg:
@@ -197,7 +198,7 @@ kernel_boot_msg:
     db "SmallOS Kernel Booted!", 0Dh, 0Ah, 0
 
 kernel_version:
-    db "SmallOS 0.01", 0Dh, 0Ah, 0
+    db "SmallOS 0.04", 0Dh, 0Ah, 0
 
 shell_prefix:
     db "SmallSH> ", 0
@@ -216,7 +217,7 @@ cmd_help:
     db "help", 0
 cmd_ver:
     db "version", 0
-cmd_basic:
-    db "basic", 0
+cmd_dir:
+    db "ls", 0
 
 times (16*512)-($-$$) db 0

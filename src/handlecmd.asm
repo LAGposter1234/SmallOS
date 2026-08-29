@@ -33,8 +33,8 @@ handle_command:
     int 21h
 
 .reboot:
-    mov ax, 0
-    int 19h
+    call cold_reboot
+    hlt
 
 .help:
     mov si, help_str

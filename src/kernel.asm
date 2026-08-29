@@ -194,11 +194,35 @@ itoh:
     mov byte [si], 0
     ret
 
+
+cold_reboot:
+    cli
+
+    ; Disable NMI
+    in      al, 0x70
+    or      al, 0x80
+    out     0x70, al
+
+    ; Wait until the keyboard controller can accept a command
+.wait:
+    in      al, 0x64
+    test    al, 0x02          ; input buffer full?
+    jnz     .wait
+
+    ; Pulse the CPU reset line
+    mov     al, 0xFE
+    out     0x64, al
+
+    ; This should never be reached
+.hang:
+    hlt
+    jmp     .hang
+
 kernel_boot_msg:
     db "SmallOS Kernel Booted!", 0Dh, 0Ah, 0
 
 kernel_version:
-    db "SmallOS 0.04", 0Dh, 0Ah, 0
+    db "SmallOS 0.041", 0Dh, 0Ah, 0
 
 shell_prefix:
     db "SmallSH> ", 0

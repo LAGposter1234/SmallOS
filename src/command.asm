@@ -36,7 +36,7 @@ strcmp:
 
 %include "handlecmd.asm"
 
-help_str db "clear - clear the screen", 0Dh, 0Ah, "reboot - reboot SmallOS", 0Dh, 0Ah, "help - show this", 0Dh, 0Ah, "version - show version", 0Dh, 0Ah, "basic - run BASICCE", 0dh, 0ah, 0
+help_str db "clear - clear the screen", 0Dh, 0Ah, "reboot - reboot SmallOS", 0Dh, 0Ah, "help - show this", 0Dh, 0Ah, "version - show version", 0Dh, 0Ah, "ls - list files", 0dh, 0ah, 0
 address_str db "segment? ", 0
 offset_str db "offset? ", 0
 byte_str db "byte? ", 0

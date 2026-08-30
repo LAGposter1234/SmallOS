@@ -19,7 +19,11 @@ sfs_dir:
 .loop:
     mov ax, bx
     mov si, sfs_buffer
+
+    push bx
     call sfs_read_file
+    pop bx
+
     jc .error
 
     cmp byte [sfs_buffer], 0
@@ -139,6 +143,96 @@ sfs_write_file:
     stc
     ret
 
+; AX = file ID
+; DS:SI = filename (null terminated)
+; DS:DI = file contents (null terminated)
+; CF = error
+
+sfs_write_file_string:
+    cmp ax, SFS_FILECOUNT
+    ja .error
+
+    ; Preserve arguments
+    push ax
+    push si
+    push di
+
+    ; Clear buffer
+    mov di, sfs_buffer
+    xor al, al
+    mov cx, 1536
+    rep stosb
+
+    ; Restore pointers
+    pop di
+    pop si
+    pop ax
+
+    ; Save file ID
+    push ax
+
+    ; Copy filename
+    mov bx, sfs_buffer
+
+.copy_name:
+    lodsb
+    mov [bx], al
+    inc bx
+    test al, al
+    jnz .copy_name
+
+    ; Load segment
+    mov word [sfs_buffer + 32], 0x5000
+
+    ; Copy contents
+    mov si, di
+    mov bx, sfs_buffer + 512
+
+.copy_data:
+    lodsb
+    mov [bx], al
+    inc bx
+    test al, al
+    jz .write
+
+    cmp bx, sfs_buffer + 1536
+    jae .error
+
+    jmp .copy_data
+
+.write:
+    pop ax
+
+    ; Calculate first sector
+    dec ax
+    mov bx, ax
+    shl ax, 1
+    add ax, bx
+    add ax, SFS_START_SECTOR + 1
+
+    ; Write 3 sectors
+    mov si, sfs_buffer
+    call write_sector
+    jc .error
+
+    inc ax
+    mov si, sfs_buffer + 512
+    call write_sector
+    jc .error
+
+    inc ax
+    mov si, sfs_buffer + 1024
+    call write_sector
+    jc .error
+
+    clc
+    ret
+
+.error:
+    pop ax
+    stc
+    ret
+
 
 ; DS:SI = filename
 ; AX = 1 if found, 0 if not
@@ -151,7 +245,11 @@ sfs_find_file:
 .loop:
     mov ax, bx
     mov si, sfs_buffer
+
+    push bx
     call sfs_read_file
+    pop bx
+
     jc .error
 
     pop si

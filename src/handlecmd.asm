@@ -27,9 +27,18 @@ handle_command:
     ret
 
 .clear:
-    mov ah, 00h
-    mov al, 03h
+    mov ax, 0B800h
+    mov es, ax
+    xor di, di
+    mov ax, 0720h
+    mov cx, 2000
+    rep stosw
+
+    mov ah, 02h
+    xor bh, bh
+    xor dx, dx
     int 10h
+
     int 21h
 
 .reboot:

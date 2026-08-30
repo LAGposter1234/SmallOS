@@ -48,7 +48,27 @@ kernel_start:
 
     mov ax, 26h
     mov bx, 1000h
-    mov cx, read_sectors
+    mov cx, read_sector_handler
+    call register_interrupt
+
+    mov ax, 27h
+    mov bx, 1000h
+    mov cx, write_sector_handler
+    call register_interrupt
+
+    mov ax, 28h
+    mov bx, 1000h
+    mov cx, get_char_handler
+    call register_interrupt
+
+    mov ax, 29h
+    mov bx, 1000h
+    mov cx, clear_handler
+    call register_interrupt
+
+    mov ax, 2Ah
+    mov bx, 1000h
+    mov cx, sfs_writefile_handler
     call register_interrupt
 
     ; load basic
@@ -91,8 +111,30 @@ get_line_handler:
     call get_line
     iret
 
-read_sectors_handler:
-    call read_sectors
+read_sector_handler:
+    call read_sector
+    iret
+
+write_sector_handler:
+    call write_sector
+    iret
+
+get_char_handler:
+    call get_char
+    iret
+
+clear_handler:
+    mov ax, 0B800h
+    mov es, ax
+    xor di, di
+    mov ax, 0720h
+    mov cx, 2000
+    rep stosw
+
+    mov ah, 02h
+    xor bh, bh
+    xor dx, dx
+    int 10h
     iret
 
 htoi_handler:
@@ -100,6 +142,10 @@ htoi_handler:
     iret
 itoh_handler:
     call itoh
+    iret
+
+sfs_writefile_handler:
+    call sfs_write_file_string
     iret
 
 %include "keyboard.asm"
@@ -222,7 +268,7 @@ kernel_boot_msg:
     db "SmallOS Kernel Booted!", 0Dh, 0Ah, 0
 
 kernel_version:
-    db "SmallOS 0.041", 0Dh, 0Ah, 0
+    db "SmallOS 0.10", 0Dh, 0Ah, 0
 
 shell_prefix:
     db "SmallSH> ", 0

@@ -63,7 +63,7 @@ def make_sfs(directory, output, load=DEFAULT_LOAD):
 
 if __name__ == "__main__":
     if len(sys.argv) < 3 or len(sys.argv) > 4:
-        print(f"usage: {sys.argv[0]} <directory> <output> [load_segment]")
+        print(f"usage: {sys.argv[0]} <directory> <output> [default load segment]")
         sys.exit(1)
 
     directory = sys.argv[1]
